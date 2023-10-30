@@ -5,7 +5,7 @@
 To run the sequential code, run the following commands:
 
 ```
-g++ -fopenmp sequential.cpp
+g++ sequential.cpp
 ./a.out
 ```
 
