@@ -5,7 +5,14 @@
 To run the sequential code, run the following commands:
 
 ```
-g++ sequential.cpp
+g++ sequential.cpp -O0
+./a.out
+```
+
+To run the parallel code, run the following commands:
+
+```
+g++ parallel.cpp -O0 -fopenmp
 ./a.out
 ```
 
