@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <math.h>
+#include <iomanip> 
 
 using namespace std;
 
@@ -43,11 +44,13 @@ vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int rad
 
 int main(){
 
+  time_t start, end; 
+
   ifstream image;
   ofstream newImage;
 
   // Open the image
-  image.open("./images/skylight.ppm");
+  image.open("./images/star_field.ppm");
   newImage.open("newimage.ppm");
 
   // copy over header information
@@ -57,6 +60,9 @@ int main(){
   image >> width;
   image >> height;
   image >> RGB;
+
+  // start timer
+  time(&start); 
 
   // set the header information for the new image
   newImage << type << endl;
@@ -92,6 +98,12 @@ int main(){
   for (int i = 0; i < filtered.size(); i++) {
     newImage << filtered[i].r << " " << filtered[i].g << " " << filtered[i].b << endl;
   }
+
+  // Recording end time. 
+  time(&end); 
+
+  double time_taken = double(end - start); 
+  cout << "Time taken by program is : " << fixed << time_taken << setprecision(5) << " sec " << endl; 
 
   image.close();
   newImage.close();
