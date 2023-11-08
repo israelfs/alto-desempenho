@@ -18,21 +18,20 @@ struct Pixel{
 vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int radius) {
     vector<Pixel> output(width * height, Pixel(0, 0, 0));
 
-    int x, y, i, j, nx, ny;
-    float sum_r, sum_g, sum_b, weight_sum, weight;
-
-    #pragma omp parallel for num_threads(16) private(x, y, i, j, nx, ny, sum_r, sum_g, sum_b, weight_sum) shared(output, width, height, input, radius)
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            sum_r = 0.0, sum_g = 0.0, sum_b = 0.0;
+    // Tentei usar as diretivas reduction nas somas, mas por algum motivo não está melhorando
+    float sum_r, sum_g, sum_b, weight_sum;
+    #pragma omp parallel for collapse(2) reduction(+:sum_r) reduction(+:sum_g) reduction(+:sum_b) reduction(+:weight_sum)
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            sum_r = 0.0; sum_g = 0.0; sum_b = 0.0;
             weight_sum = 0.0;
-            for (j = -radius; j <= radius; j++) {
-                for (i = -radius; i <= radius; i++) {
-                    nx = x + i;
-                    ny = y + j;
+            for (int j = -radius; j <= radius; j++) {
+                for (int i = -radius; i <= radius; i++) {
+                    int nx = x + i;
+                    int ny = y + j;
                     if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                        weight = exp(-(i * i + j * j) / (2.0 * radius * radius));
-                        Pixel currentPixel = input[ny * width + nx];
+                        float weight = exp(-(i * i + j * j) / (2.0 * radius * radius));
+                        const Pixel& currentPixel = input[ny * width + nx];
                         sum_r += currentPixel.r * weight;
                         sum_g += currentPixel.g * weight;
                         sum_b += currentPixel.b * weight;
@@ -43,7 +42,7 @@ vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int rad
             output[y * width + x] = Pixel(sum_r / weight_sum, sum_g / weight_sum, sum_b / weight_sum);
         }
     }
-    
+
     return output;
 }
 
