@@ -9,27 +9,29 @@
 
 using namespace std;
 
-struct Pixel{
+struct Pixel{ // struct to hold RGB values
   float r, g, b;
   Pixel(float r, float g, float b) : r(r), g(g), b(b) {}
 };
 
 // Gaussian blur function for RGB image
 vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int radius) {
-    vector<Pixel> output(width * height, Pixel(0, 0, 0));
+    vector<Pixel> output(width * height, Pixel(0, 0, 0)); // initialize output image to all black
 
-    // Tentei usar as diretivas reduction nas somas, mas por algum motivo não está melhorando
     float sum_r, sum_g, sum_b, weight_sum;
-    #pragma omp parallel for collapse(2) reduction(+:sum_r) reduction(+:sum_g) reduction(+:sum_b) reduction(+:weight_sum)
+    #pragma omp parallel for collapse(2) num_threads(6) reduction(+:sum_r) reduction(+:sum_g) reduction(+:sum_b) reduction(+:weight_sum)
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             sum_r = 0.0; sum_g = 0.0; sum_b = 0.0;
             weight_sum = 0.0;
+            // loop over all pixels in the kernel
             for (int j = -radius; j <= radius; j++) {
                 for (int i = -radius; i <= radius; i++) {
                     int nx = x + i;
                     int ny = y + j;
+                    // only sum the pixel if it's within the image bounds
                     if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                        // calculate the gaussian weight
                         float weight = exp(-(i * i + j * j) / (2.0 * radius * radius));
                         const Pixel& currentPixel = input[ny * width + nx];
                         sum_r += currentPixel.r * weight;
@@ -39,10 +41,10 @@ vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int rad
                     }
                 }
             }
+            // normalize the pixel value
             output[y * width + x] = Pixel(sum_r / weight_sum, sum_g / weight_sum, sum_b / weight_sum);
         }
     }
-
     return output;
 }
 
@@ -56,6 +58,7 @@ int main(){
 
   // Open the image
   image.open("./images/star_field.ppm");
+  // Open a new image to write to
   newImage.open("newimage.ppm");
 
   // copy over header information
@@ -101,7 +104,7 @@ int main(){
   wtime = omp_get_wtime ( ) - wtime;
 
   double time_taken = double(end - start); 
-  std::cout << "Time taken by the parallel program is : " << fixed << wtime << " sec " << endl; 
+  std::cout << "Time taken by the parallel program is: " << fixed << wtime << " sec " << endl; 
   
   // write the new image
   for (int i = 0; i < filtered.size(); i++) {
