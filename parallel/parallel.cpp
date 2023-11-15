@@ -19,7 +19,7 @@ vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int rad
     vector<Pixel> output(width * height, Pixel(0, 0, 0)); // initialize output image to all black
 
     float sum_r, sum_g, sum_b, weight_sum;
-    #pragma omp parallel for collapse(2) num_threads(6) reduction(+:sum_r) reduction(+:sum_g) reduction(+:sum_b) reduction(+:weight_sum)
+    #pragma omp parallel for collapse(2) num_threads(12) reduction(+:sum_r) reduction(+:sum_g) reduction(+:sum_b) reduction(+:weight_sum)
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             sum_r = 0.0; sum_g = 0.0; sum_b = 0.0;
