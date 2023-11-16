@@ -4,7 +4,8 @@
 #include <sstream>
 #include <cstdlib>
 #include <math.h>
-#include <iomanip> 
+#include <iomanip>
+#include <chrono>
 
 using namespace std;
 
@@ -47,15 +48,20 @@ vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int rad
 }
 
 
-int main(){
+int main(int argc, char *argv[]) {
 
-  time_t start, end; 
+  // time_t start, end;
 
   ifstream image;
   ofstream newImage;
 
+  // Digite a imagem que você queira abrir
+  cout << "Digite a imagem que você queira abrir: ";
+  string img;
+  cin >> img;
+
   // Open the image
-  image.open("./images/star_field.ppm");
+  image.open("./images/" + img);
   // Open a new image to write to
   newImage.open("newimage.ppm");
 
@@ -95,16 +101,19 @@ int main(){
   }
 
    // start timer
-  time(&start); 
+  // time(&start); 
+  auto start = std::chrono::high_resolution_clock::now();
 
   // apply gaussian blur
   vector<Pixel> filtered = gaussian_blur(stoi(width), stoi(height), pixels, 5);
 
   // Recording end time. 
-  time(&end); 
+  // time(&end);
+  auto end = std::chrono::high_resolution_clock::now();
 
-  double time_taken = end - start; 
-  cout << "Time taken by the sequential program is: " << fixed << time_taken << " sec " << endl; 
+  // double time_taken = end - start;
+  double time_taken = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  cout << "Time taken by the sequential program is: " << fixed << time_taken/1000 << " sec " << endl;
 
   // write the new image
   for (int i = 0; i < filtered.size(); i++) {
@@ -113,6 +122,10 @@ int main(){
 
   image.close();
   newImage.close();
+
+
+  time_taken = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
 
   return 0;
 }

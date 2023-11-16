@@ -15,11 +15,11 @@ struct Pixel{ // struct to hold RGB values
 };
 
 // Gaussian blur function for RGB image
-vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int radius) {
+vector<Pixel> gaussian_blur(int width, int height, vector<Pixel>& input, int radius, int num_of_threads) {
     vector<Pixel> output(width * height, Pixel(0, 0, 0)); // initialize output image to all black
 
     float sum_r, sum_g, sum_b, weight_sum;
-    #pragma omp parallel for collapse(2) num_threads(12) reduction(+:sum_r) reduction(+:sum_g) reduction(+:sum_b) reduction(+:weight_sum)
+    #pragma omp parallel for collapse(2) num_threads(num_of_threads) reduction(+:sum_r) reduction(+:sum_g) reduction(+:sum_b) reduction(+:weight_sum)
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             sum_r = 0.0; sum_g = 0.0; sum_b = 0.0;
@@ -56,8 +56,13 @@ int main(){
   ifstream image;
   ofstream newImage;
 
+  // Digite a imagem que você queira abrir
+  cout << "Digite a imagem que você queira abrir: ";
+  string img;
+  cin >> img;
+
   // Open the image
-  image.open("./images/star_field.ppm");
+  image.open("./images/" + img);
   // Open a new image to write to
   newImage.open("newimage.ppm");
 
@@ -96,10 +101,14 @@ int main(){
     pixels.push_back(Pixel(r, g, b));
   }
 
+  int num_threads = 0;
+  cout << "Digite a quantidade de threads: ";
+  cin >> num_threads;
+
   double wtime = omp_get_wtime ( );
 
   // apply gaussian blur
-  vector<Pixel> filtered = gaussian_blur(stoi(width), stoi(height), pixels, 5);
+  vector<Pixel> filtered = gaussian_blur(stoi(width), stoi(height), pixels, 5, num_threads);
 
   wtime = omp_get_wtime ( ) - wtime;
 
