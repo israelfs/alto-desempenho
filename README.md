@@ -2,18 +2,19 @@
 
 ## How to run
 
-To run the sequential code, run the following commands:
+To run the sequential code, run the following commands on the root folder:
 
 ```
-g++ sequential.cpp -O0
-./a.out
+make sequential
+choose the name of the image e.g. star_field.ppm
 ```
 
-To run the parallel code, run the following commands:
+To run the parallel code, run the following commands on the root folder:
 
 ```
-g++ parallel.cpp -O0 -fopenmp
-./a.out
+make parallel
+choose the number of threads e.g. 6
+choose the name of the image e.g. star_field.ppm
 ```
 
 Open the newimage.ppm file to see the result (you can use GIMP to visualize the .ppm image).
